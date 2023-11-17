@@ -36,6 +36,14 @@ func DrawHollowRectOnImage(ctx *dgctx.DgContext, sourceImageFile string, destIma
 	dw.SetStrokeAntialias(true)
 	dw.Rectangle(leftTopX, leftTopY, rightBottomX, rightBottomY)
 
+	newX := rightBottomX + 10
+	newY := leftTopY - 10
+	dw.Line(rightBottomX, leftTopY, newX, newY)
+	dw.Line(newX, newY, newX, newY+5)
+	dw.Line(newX, newY, newX-5, newY)
+	dw.SetFontSize(16)
+	dw.Annotation(newX+2, newY+5, "hello")
+
 	if err := dw.PopDrawingWand(); err != nil {
 		dglogger.Errorf(ctx, "[file: %s] PopDrawingWand error: %v", sourceImageFile, err)
 		return err
