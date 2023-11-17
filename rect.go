@@ -6,7 +6,7 @@ import (
 	"gopkg.in/gographics/imagick.v3/imagick"
 )
 
-func DrawHollowRectOnImage(ctx *dgctx.DgContext, imageFile string, outImageDir string, leftTopX, leftTopY, rightBottomX, rightBottomY float64, color string, strokeWidth float64) error {
+func DrawHollowRectOnImage(ctx *dgctx.DgContext, imageFile string, outImageDir string, leftTopX, leftTopY, rightBottomX, rightBottomY float64, strokeWidth float64, color string) error {
 	imagick.Initialize()
 	defer imagick.Terminate()
 	mw := imagick.NewMagickWand()

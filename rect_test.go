@@ -11,7 +11,7 @@ func TestDrawHollowRectOnImage(t *testing.T) {
 	ctx := &dgctx.DgContext{TraceId: "123"}
 	err := dgimk.DrawHollowRectOnImage(ctx, os.Getenv("imageFile"), "output.jpg",
 		28, 37, 302, 72,
-		"red", 1)
+		1, "red")
 	if err != nil {
 		return
 	}
