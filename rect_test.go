@@ -7,9 +7,9 @@ import (
 	"testing"
 )
 
-func TestDrawRectOnImage(t *testing.T) {
+func TestDrawHollowRectOnImage(t *testing.T) {
 	ctx := &dgctx.DgContext{TraceId: "123"}
-	err := dgimk.DrawRectOnImage(ctx, os.Getenv("imageFile"), "output.jpg",
+	err := dgimk.DrawHollowRectOnImage(ctx, os.Getenv("imageFile"), "output.jpg",
 		28, 37, 302, 72,
 		"red", 1)
 	if err != nil {

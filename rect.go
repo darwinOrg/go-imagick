@@ -6,7 +6,7 @@ import (
 	"gopkg.in/gographics/imagick.v3/imagick"
 )
 
-func DrawRectOnImage(ctx *dgctx.DgContext, imageFile string, outImageDir string, leftTopX, leftTopY, rightBottomX, rightBottomY float64, color string, strokeWidth float64) error {
+func DrawHollowRectOnImage(ctx *dgctx.DgContext, imageFile string, outImageDir string, leftTopX, leftTopY, rightBottomX, rightBottomY float64, color string, strokeWidth float64) error {
 	imagick.Initialize()
 	defer imagick.Terminate()
 	mw := imagick.NewMagickWand()
@@ -28,13 +28,13 @@ func DrawRectOnImage(ctx *dgctx.DgContext, imageFile string, outImageDir string,
 
 	cw.SetColor(color)
 	dw.SetStrokeColor(cw)
+
+	cw.SetAlpha(0)
+	dw.SetFillColor(cw)
+
 	dw.SetStrokeWidth(strokeWidth)
 	dw.SetStrokeAntialias(true)
-	//dw.Rectangle(leftTopX, leftTopY, rightBottomX, rightBottomY)
-	dw.Line(leftTopX, leftTopY, leftTopX, rightBottomY)
-	dw.Line(leftTopX, leftTopY, rightBottomX, leftTopY)
-	dw.Line(rightBottomX, rightBottomY, leftTopX, rightBottomY)
-	dw.Line(rightBottomX, rightBottomY, rightBottomX, leftTopY)
+	dw.Rectangle(leftTopX, leftTopY, rightBottomX, rightBottomY)
 
 	if err := dw.PopDrawingWand(); err != nil {
 		dglogger.Errorf(ctx, "[file: %s] PopDrawingWand error: %v", imageFile, err)
