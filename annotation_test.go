@@ -4,7 +4,6 @@ import (
 	dgctx "github.com/darwinOrg/go-common/context"
 	dglogger "github.com/darwinOrg/go-logger"
 	"gopkg.in/gographics/imagick.v3/imagick"
-	"os"
 	"testing"
 )
 
@@ -19,7 +18,7 @@ func TestDrawAnnotationOnImage(t *testing.T) {
 	defer dw.Destroy()
 
 	ctx := &dgctx.DgContext{TraceId: "123"}
-	sourceImageFile := os.Getenv("imageFile")
+	sourceImageFile := "11.jpg"
 
 	if err := mw.ReadImage(sourceImageFile); err != nil {
 		dglogger.Errorf(ctx, "[file: %s] 文件读取失败", sourceImageFile)
