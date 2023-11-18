@@ -47,9 +47,18 @@ func TestDrawAnnotationOnImage(t *testing.T) {
 	dw.Line(rightBottomX, leftTopY, newX, newY)
 	dw.Line(newX, newY, newX, newY+5)
 	dw.Line(newX, newY, newX-5, newY)
+
+	//cw.SetColor("green")
+	cw.SetAlpha(0.2)
+	dw.SetStrokeColor(cw)
+
+	//dw.SetFillColor(cw)
+	//dw.SetTextUnderColor(cw)
 	dw.SetFont("chinese_cht.ttf")
 	dw.SetFontSize(16)
 	dw.Annotation(newX+2, newY+5, "批注")
+	//mw.AnnotateImage(dw, newX+2, newY+5, 0, "批注")
+	//mw.DrawImage(dw)
 
 	if err := dw.PopDrawingWand(); err != nil {
 		dglogger.Errorf(ctx, "[file: %s] PopDrawingWand error: %v", sourceImageFile, err)
