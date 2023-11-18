@@ -77,13 +77,13 @@ func ConvertPdfToImage(ctx *dgctx.DgContext, pdfFilePath string, pageWidth uint,
 		}
 	}()
 
-	fmw := mws[0]
-	for i := 1; i < len(mws); i++ {
-		fmw.AddImage(mws[i])
+	mw.Clear()
+	for i := 0; i < len(mws); i++ {
+		mw.AddImage(mws[i])
 	}
-	fmw.SetFirstIterator()
+	mw.SetFirstIterator()
 	// 从上到下追加合并图片
-	amw := fmw.AppendImages(true)
+	amw := mw.AppendImages(true)
 	defer amw.Destroy()
 	outImageFile := outImageDir + "/" + uuid.NewString() + ".jpg"
 	if err := amw.WriteImage(outImageFile); err != nil {
