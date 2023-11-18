@@ -18,7 +18,6 @@ func ConvertPdfToImage(ctx *dgctx.DgContext, pdfFilePath string, pageWidth uint,
 
 	if err := mw.SetResolution(resolution, resolution); err != nil {
 		dglogger.Errorf(ctx, "[file: %s] 扫描精度[%f]设置失败", pdfFilePath, resolution)
-		return "", err
 	}
 
 	if err := mw.ReadImage(pdfFilePath); err != nil {
@@ -28,9 +27,6 @@ func ConvertPdfToImage(ctx *dgctx.DgContext, pdfFilePath string, pageWidth uint,
 
 	var pages = int(mw.GetNumberImages())
 	dglogger.Infof(ctx, "[file: %s] 文件页数: %d", pdfFilePath, pages)
-
-	// 裁剪会使页数增加
-	addPages := 0
 	var mws []*imagick.MagickWand
 
 	for i := 0; i < pages; i++ {
@@ -39,8 +35,7 @@ func ConvertPdfToImage(ctx *dgctx.DgContext, pdfFilePath string, pageWidth uint,
 
 		// 压平图像，去掉alpha通道，防止JPG中的alpha变黑,用在ReadImage之后
 		if err := mw.SetImageAlphaChannel(imagick.ALPHA_CHANNEL_REMOVE); err != nil {
-			dglogger.Debugf(ctx, "[file: %s] 压平图像失败：%v", pdfFilePath, err)
-			return "", err
+			dglogger.Errorf(ctx, "[file: %s] 压平图像失败：%v", pdfFilePath, err)
 		}
 
 		mw.SetImageFormat("jpg")
@@ -58,19 +53,18 @@ func ConvertPdfToImage(ctx *dgctx.DgContext, pdfFilePath string, pageWidth uint,
 
 			tempImage := mw.GetImageFromMagickWand()
 			// 由于返回的是指针,需要提前初始化,不然写完左半页tempImage就变了
-			leftMw := imagick.NewMagickWandFromImage(tempImage)
+			rightMw := imagick.NewMagickWandFromImage(tempImage)
 
 			// 左半页
 			mw.CropImage(pageWidth, pageHeight, 0, 0)
 			mws = append(mws, mw.GetImage())
 
 			// 右半页
-			leftMw.SetImageFormat("jpg")
-			leftMw.SetImageCompression(imagick.COMPRESSION_JPEG)
-			leftMw.SetImageCompressionQuality(compressionQuality)
-			leftMw.CropImage(pageWidth, pageHeight, int(pageWidth), 0)
-			addPages++
-			mws = append(mws, leftMw)
+			rightMw.SetImageFormat("jpg")
+			rightMw.SetImageCompression(imagick.COMPRESSION_JPEG)
+			rightMw.SetImageCompressionQuality(compressionQuality)
+			rightMw.CropImage(pageWidth, pageHeight, int(pageWidth), 0)
+			mws = append(mws, rightMw)
 		} else {
 			mw.ThumbnailImage(pageWidth, pageHeight)
 			mws = append(mws, mw.GetImage())
@@ -88,11 +82,12 @@ func ConvertPdfToImage(ctx *dgctx.DgContext, pdfFilePath string, pageWidth uint,
 		fmw.AddImage(mws[i])
 	}
 	fmw.SetFirstIterator()
+	// 从上到下追加合并图片
 	amw := fmw.AppendImages(true)
 	defer amw.Destroy()
 	outImageFile := outImageDir + "/" + uuid.NewString() + ".jpg"
 	if err := amw.WriteImage(outImageFile); err != nil {
-		dglogger.Debugf(ctx, "[file: %s] 导出图片文件失败：%v", pdfFilePath, err)
+		dglogger.Errorf(ctx, "[file: %s] 导出图片文件失败：%v", pdfFilePath, err)
 		return "", err
 	}
 
