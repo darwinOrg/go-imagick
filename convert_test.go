@@ -15,13 +15,13 @@ func TestConvertPdfToImage(t *testing.T) {
 	defer mw.Destroy()
 
 	ctx := &dgctx.DgContext{TraceId: "123"}
-	amw, err := dgimk.ConvertPdfToImage(ctx, mw, "1.pdf")
+	pmw, err := dgimk.ConvertPdfToImage(ctx, mw, "1.pdf")
 	if err != nil {
 		dglogger.Error(ctx, err)
 	}
-	defer amw.Destroy()
+	defer pmw.Destroy()
 
-	if err := amw.WriteImage("output.jpg"); err != nil {
+	if err := pmw.WriteImage("output.jpg"); err != nil {
 		dglogger.Errorf(ctx, "导出图片文件失败：%v", err)
 	}
 }

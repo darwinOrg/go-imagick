@@ -4,17 +4,19 @@ import (
 	dgctx "github.com/darwinOrg/go-common/context"
 	dglogger "github.com/darwinOrg/go-logger"
 	"gopkg.in/gographics/imagick.v3/imagick"
+	"time"
 )
 
 // ConvertPdfToImage 转换pdf为图片格式
-func ConvertPdfToImage(ctx *dgctx.DgContext, mw *imagick.MagickWand, pdfFilePath string) (*imagick.MagickWand, error) {
-	if err := mw.ReadImage(pdfFilePath); err != nil {
-		dglogger.Errorf(ctx, "[file: %s] 文件读取失败", pdfFilePath)
+func ConvertPdfToImage(ctx *dgctx.DgContext, mw *imagick.MagickWand, pdfFile string) (*imagick.MagickWand, error) {
+	start := time.Now().UnixMilli()
+	if err := mw.ReadImage(pdfFile); err != nil {
+		dglogger.Errorf(ctx, "[file: %s] 文件读取失败", pdfFile)
 		return nil, err
 	}
 
 	var pages = int(mw.GetNumberImages())
-	dglogger.Infof(ctx, "[file: %s] 文件页数: %d", pdfFilePath, pages)
+	dglogger.Infof(ctx, "[file: %s] 文件页数: %d", pdfFile, pages)
 	var mws []*imagick.MagickWand
 
 	for i := 0; i < pages; i++ {
@@ -23,7 +25,7 @@ func ConvertPdfToImage(ctx *dgctx.DgContext, mw *imagick.MagickWand, pdfFilePath
 
 		// 压平图像，去掉alpha通道，防止JPG中的alpha变黑, 用在ReadImage之后
 		if err := mw.SetImageAlphaChannel(imagick.ALPHA_CHANNEL_REMOVE); err != nil {
-			dglogger.Errorf(ctx, "[file: %s] 压平图像失败：%v", pdfFilePath, err)
+			dglogger.Errorf(ctx, "[file: %s] 压平图像失败：%v", pdfFile, err)
 		}
 
 		mw.SetImageFormat("jpg")
@@ -69,5 +71,9 @@ func ConvertPdfToImage(ctx *dgctx.DgContext, mw *imagick.MagickWand, pdfFilePath
 	mw.SetFirstIterator()
 
 	// 从上到下追加合并图片
-	return mw.AppendImages(true), nil
+	pmw := mw.AppendImages(true)
+	cost := time.Now().UnixMilli() - start
+	dglogger.Infof(ctx, "[file: %s] ConvertPdfToImage cost：%d ms", pdfFile, cost)
+
+	return pmw, nil
 }
