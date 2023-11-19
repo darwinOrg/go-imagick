@@ -4,14 +4,24 @@ import (
 	dgctx "github.com/darwinOrg/go-common/context"
 	dgimk "github.com/darwinOrg/go-imagick"
 	dglogger "github.com/darwinOrg/go-logger"
-	"os"
+	"gopkg.in/gographics/imagick.v3/imagick"
 	"testing"
 )
 
 func TestConvertPdfToImage(t *testing.T) {
+	imagick.Initialize()
+	defer imagick.Terminate()
+	mw := imagick.NewMagickWand()
+	defer mw.Destroy()
+
 	ctx := &dgctx.DgContext{TraceId: "123"}
-	_, err := dgimk.ConvertPdfToImage(ctx, os.Getenv("pdfFile"), 800, 1212, 200, 100, ".")
+	amw, err := dgimk.ConvertPdfToImage(ctx, mw, "1.pdf")
 	if err != nil {
 		dglogger.Error(ctx, err)
+	}
+	defer amw.Destroy()
+
+	if err := amw.WriteImage("output.jpg"); err != nil {
+		dglogger.Errorf(ctx, "导出图片文件失败：%v", err)
 	}
 }
